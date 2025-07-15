@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Registration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 30px;
+            text-align: center;
+            background-color: #e0f7fa;
+            background-image: linear-gradient(to bottom right, #e0f7fa, #b2ebf2);
+            min-height: 100vh;
+        }
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        h1 {
+            color: #00796b;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #00897b;
+            margin-top: 0;
+        }
+        input {
+            width: 80%;
+            padding: 12px 15px;
+            margin: 12px 0;
+            border: 2px solid #b2dfdb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        input:focus {
+            border-color: #9c27b0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.2);
+        }
+        button {
+            background-color: #9c27b0;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 15px 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #7b1fa2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #thankYouMessage {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00796b;
+            margin: 30px 0;
+            display: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        #participantsList {
+            display: none;
+            margin-top: 25px;
+            text-align: left;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideUp 0.4s ease-out;
+        }
+        .participant-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            margin: 5px 0;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s;
+        }
+        .participant-item:hover {
+            background-color: rgba(156, 39, 176, 0.1);
+            transform: translateX(5px);
+        }
+        .participant-item:last-child {
+            border-bottom: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #9c27b0;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">Event Registration</div>
+    <h1>Participant Registration</h1>
+    
+    <div class="form-container">
+        <div id="inputForm">
+            <p style="color: #455a64; font-size: 18px; margin-bottom: 20px;">Please enter your information:</p>
+            <input type="text" id="username" placeholder="Your Username" required>
+            <input type="text" id="discordName" placeholder="Your Discord Name (e.g., username#1234)" required>
+            <button id="submitBtn">Submit</button>
+        </div>
+        
+        <div id="thankYouMessage">
+            Thank you for participating!<br>
+            <span style="font-size: 18px; font-weight: normal;">Now just wait for the announcement</span>
+        </div>
+    </div>
+    
+    <button id="viewParticipantsBtn">View All Participants</button>
+    
+    <div id="participantsList">
+        <h2>Registered Participants</h2>
+        <div id="participantsContainer"></div>
+    </div>
+
+    <script>
+        // Check if user has already submitted
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedUsername = localStorage.getItem('username');
+            const savedDiscord = localStorage.getItem('discordName');
+            
+            if (savedUsername && savedDiscord) {
+                document.getElementById('username').value = savedUsername;
+                document.getElementById('discordName').value = savedDiscord;
+                showThankYouMessage();
+            }
+        });
+
+        // Submit button handler
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const username = document.getElementById('username').value.trim();
+            const discordName = document.getElementById('discordName').value.trim();
+            
+            if (username && discordName) {
+                // Save to localStorage
+                localStorage.setItem('username', username);
+                localStorage.setItem('discordName', discordName);
+                
+                // Add to participants list
+                addParticipant(username, discordName);
+                
+                // Show thank you message
+                showThankYouMessage();
+            } else {
+                alert('Please fill in both fields');
+            }
+        });
+
+        // View participants button handler
+        document.getElementById('viewParticipantsBtn').addEventListener('click', function() {
+            const participantsList = document.getElementById('participantsList');
+            if (participantsList.style.display === 'block') {
+                participantsList.style.display = 'none';
+            } else {
+                participantsList.style.display = 'block';
+                loadAllParticipants();
+            }
+        });
+
+        function showThankYouMessage() {
+            document.getElementById('inputForm').style.display = 'none';
+            document.getElementById('thankYouMessage').style.display = 'block';
+        }
+
+        function addParticipant(username, discordName) {
+            let participants = JSON.parse(localStorage.getItem('participants')) || [];
+            
+            // Check if participant already exists
+            const exists = participants.some(p => p.username === username && p.discordName === discordName);
+            
+            if (!exists) {
+                participants.push({ username, discordName });
+                localStorage.setItem('participants', JSON.stringify(participants));
+            }
+        }
+
+        function loadAllParticipants() {
+            const participants = JSON.parse(localStorage.getItem('participants')) || [];
+            const container = document.getElementById('participantsContainer');
+            container.innerHTML = '';
+            
+            if (participants.length === 0) {
+                container.innerHTML = '<p style="color: #757575; text-align: center;">No participants yet.</p>';
+                return;
+            }
+            
+            participants.forEach(participant => {
+                const div = document.createElement('div');
+                div.className = 'participant-item';
+                div.innerHTML = `<strong>${participant.username}</strong> <span style="color: #9c27b0;">•</span> Discord: ${participant.discordName}`;
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
